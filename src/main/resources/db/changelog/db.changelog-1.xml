@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="1" author="ana.tret">
+        <comment>Create sanctioned_subject table and unique index on normalized_name</comment>
+        <sql>
+            CREATE TABLE sanctioned_subject (
+                id                 BIGSERIAL PRIMARY KEY,
+                full_name          VARCHAR(255) NOT NULL,
+                normalized_name    VARCHAR(255) NOT NULL,
+                created_at         TIMESTAMPTZ  NOT NULL,
+                updated_at         TIMESTAMPTZ  NOT NULL
+            );
+
+            CREATE UNIQUE INDEX sanctioned_subject_normalized_name_unique ON sanctioned_subject(normalized_name);
+        </sql>
+    </changeSet>
+
+</databaseChangeLog>
