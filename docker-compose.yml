@@ -1,0 +1,15 @@
+services:
+  aml-db:
+    image: postgres:16
+    container_name: aml-db-postgres
+    environment:
+      - POSTGRES_DB=aml-db
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass
+    ports:
+      - 5444:5432
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: aml-check-service
+  datasource:
+    url: jdbc:postgresql://localhost:5444/aml-db
+    username: user
+    password: pass
+    driver-class-name: org.postgresql.Driver
+  liquibase:
+    enabled: true
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+server:
+  port: 8888
