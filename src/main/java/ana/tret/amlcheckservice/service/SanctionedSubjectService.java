@@ -15,16 +15,16 @@ import static ana.tret.amlcheckservice.exception.RecordNotFoundException.notFoun
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional(readOnly = true)
 public class SanctionedSubjectService {
 
     private final SanctionedSubjectRepository repository;
 
+    @Transactional
     public SanctionedSubjectResponse add(SanctionedSubjectRequest request) {
-        //toDo idempotent!
-        SanctionedSubject subject = new SanctionedSubject()
-                .setFullName(request.fullName())
-                .setNormalizedName(request.fullName().toLowerCase());
+        String fullName = request.fullName();
+        String normalizedName = fullName.toLowerCase();
+        SanctionedSubject subject = repository.findSanctionedSubjectByNormalizedName(normalizedName)
+                .orElseGet(() -> createSanctionedSubject(fullName, normalizedName));
 
         return fromEntity(repository.save(subject));
     }
@@ -43,6 +43,12 @@ public class SanctionedSubjectService {
     @Transactional
     public void delete(Long id) {
         repository.deleteById(id);
+    }
+
+    private SanctionedSubject createSanctionedSubject(String fullName, String normalizedName) {
+        return repository.save(new SanctionedSubject()
+                .setFullName(fullName)
+                .setNormalizedName(normalizedName));
     }
 
 }
