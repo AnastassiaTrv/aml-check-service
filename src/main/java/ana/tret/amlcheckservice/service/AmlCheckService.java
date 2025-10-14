@@ -27,7 +27,7 @@ public class AmlCheckService {
     public AmlCheckResponse performAmlScreening(AmlCheckRequest request) {
         String normalizedInput = toNormalized(request.fullName());
         List<SanctionedSubject> candidates = repository.preselectCandidatesBySimilarityRate(normalizedInput, CANDIDATE_LIMIT, INITIAL_SIMILARITY_RATE);
-        return new AmlCheckResponse("None", "LOW", false);
+        return new AmlCheckResponse("None", "LOW", !candidates.isEmpty());
     }
 
 }
