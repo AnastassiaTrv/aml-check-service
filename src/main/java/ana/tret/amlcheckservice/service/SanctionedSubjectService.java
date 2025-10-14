@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import static ana.tret.amlcheckservice.dto.SanctionedSubjectResponse.fromEntity;
 import static ana.tret.amlcheckservice.exception.RecordNotFoundException.notFoundById;
+import static ana.tret.amlcheckservice.service.NormalizeHelper.toNormalized;
 
 @Service
 @RequiredArgsConstructor
@@ -22,11 +23,11 @@ public class SanctionedSubjectService {
     @Transactional
     public SanctionedSubjectResponse add(SanctionedSubjectRequest request) {
         String fullName = request.fullName();
-        String normalizedName = fullName.toLowerCase();
+        String normalizedName = toNormalized(fullName);
         SanctionedSubject subject = repository.findSanctionedSubjectByNormalizedName(normalizedName)
                 .orElseGet(() -> createSanctionedSubject(fullName, normalizedName));
 
-        return fromEntity(repository.save(subject));
+        return fromEntity(subject);
     }
 
     @Transactional

@@ -21,4 +21,12 @@
         </sql>
     </changeSet>
 
+    <changeSet id="2" author="ana.tret">
+        <comment>Enable trgm extension, create generalized inverted index on normalized_name</comment>
+        <sql>
+            CREATE EXTENSION IF NOT EXISTS pg_trgm;
+            CREATE INDEX IF NOT EXISTS idx_sanctioned_subject_normalized_name_trgm ON sanctioned_subject USING gin(normalized_name gin_trgm_ops)
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>
