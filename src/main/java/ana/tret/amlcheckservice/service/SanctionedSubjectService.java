@@ -1,7 +1,7 @@
 package ana.tret.amlcheckservice.service;
 
-import ana.tret.amlcheckservice.dto.SanctionedSubjectRequest;
-import ana.tret.amlcheckservice.dto.SanctionedSubjectResponse;
+import ana.tret.amlcheckservice.dto.sanctionedsubject.SanctionedSubjectRequest;
+import ana.tret.amlcheckservice.dto.sanctionedsubject.SanctionedSubjectResponse;
 import ana.tret.amlcheckservice.repository.sanctionedsubject.SanctionedSubject;
 import ana.tret.amlcheckservice.repository.sanctionedsubject.SanctionedSubjectRepository;
 import lombok.RequiredArgsConstructor;
@@ -9,9 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static ana.tret.amlcheckservice.dto.SanctionedSubjectResponse.fromEntity;
 import static ana.tret.amlcheckservice.exception.RecordNotFoundException.notFoundById;
-import static ana.tret.amlcheckservice.service.NormalizeHelper.toNormalized;
+import static ana.tret.amlcheckservice.utility.NormalizeHelper.toNormalized;
 
 @Service
 @RequiredArgsConstructor
@@ -27,18 +26,17 @@ public class SanctionedSubjectService {
         SanctionedSubject subject = repository.findSanctionedSubjectByNormalizedName(normalizedName)
                 .orElseGet(() -> createSanctionedSubject(fullName, normalizedName));
 
-        return fromEntity(subject);
+        return SanctionedSubjectResponse.fromEntity(subject);
     }
 
     @Transactional
     public SanctionedSubjectResponse update(Long id, SanctionedSubjectRequest request) {
-        SanctionedSubject subject = repository.findById(id)
-                .orElseThrow(() -> notFoundById(id));
+        SanctionedSubject subject = repository.findById(id).orElseThrow(() -> notFoundById(id));
 
-        subject.setFullName(request.fullName())
-                .setNormalizedName(request.fullName().toLowerCase());
+        String fullName = request.fullName();
+        subject.setFullName(fullName).setNormalizedName(toNormalized(fullName));
 
-        return fromEntity(repository.save(subject));
+        return SanctionedSubjectResponse.fromEntity(repository.save(subject));
     }
 
     @Transactional

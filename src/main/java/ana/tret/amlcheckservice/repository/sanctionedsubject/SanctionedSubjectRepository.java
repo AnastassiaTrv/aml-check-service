@@ -10,12 +10,4 @@ public interface SanctionedSubjectRepository extends JpaRepository<SanctionedSub
 
     Optional<SanctionedSubject> findSanctionedSubjectByNormalizedName(String normalizedName);
 
-    @Query(value = """
-        SELECT *
-        FROM sanctioned_subject
-        WHERE normalized_name % :normalized AND similarity(normalized_name, :normalized) >= :rate
-        ORDER BY similarity(normalized_name, :normalized) DESC
-        LIMIT :limit
-        """, nativeQuery = true)
-    List<SanctionedSubject> preselectCandidatesBySimilarityRate(String normalized, int limit, double rate);
 }

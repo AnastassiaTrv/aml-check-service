@@ -1,7 +1,7 @@
 package ana.tret.amlcheckservice.controller;
 
-import ana.tret.amlcheckservice.dto.SanctionedSubjectRequest;
-import ana.tret.amlcheckservice.dto.SanctionedSubjectResponse;
+import ana.tret.amlcheckservice.dto.sanctionedsubject.SanctionedSubjectRequest;
+import ana.tret.amlcheckservice.dto.sanctionedsubject.SanctionedSubjectResponse;
 import ana.tret.amlcheckservice.service.SanctionedSubjectService;
 import jakarta.websocket.server.PathParam;
 import lombok.RequiredArgsConstructor;

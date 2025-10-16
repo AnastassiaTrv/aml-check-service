@@ -1,4 +1,4 @@
-package ana.tret.amlcheckservice.dto;
+package ana.tret.amlcheckservice.dto.sanctionedsubject;
 
 import ana.tret.amlcheckservice.repository.sanctionedsubject.SanctionedSubject;
 
