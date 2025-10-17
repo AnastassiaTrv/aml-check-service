@@ -1,15 +1,30 @@
 services:
+  aml-check-app:
+    build: .
+    container_name: aml-check-app
+    ports:
+      - "8882:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://aml-db:5432/aml-db
+      SPRING_DATASOURCE_USERNAME: user
+      SPRING_DATASOURCE_PASSWORD: pass
+    depends_on:
+      - aml-db
+    restart: unless-stopped
+
   aml-db:
     image: postgres:16
     container_name: aml-db-postgres
     environment:
-      - POSTGRES_DB=aml-db
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
+      POSTGRES_DB: aml-db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
     ports:
-      - 5444:5432
+      - "5444:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
 volumes:
   pg_data:
