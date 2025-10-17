@@ -1,23 +1,23 @@
 package ana.tret.amlcheckservice.dto.sanctionedsubject;
 
-import ana.tret.amlcheckservice.repository.sanctionedsubject.SanctionedSubject;
-
-import java.time.Instant;
+import java.time.OffsetDateTime;
 
 public record SanctionedSubjectResponse(
         Long id,
         String fullName,
         String normalizedName,
-        Instant createdAt,
-        Instant updatedAt) {
+        OffsetDateTime createdAt,
+        OffsetDateTime updatedAt,
+        Long version) {
 
-    public static SanctionedSubjectResponse fromEntity(SanctionedSubject e) {
+    public static SanctionedSubjectResponse fromDto(SanctionedSubjectDto e) {
         return new SanctionedSubjectResponse(
-                e.getId(),
-                e.getFullName(),
-                e.getNormalizedName(),
-                e.getCreatedAt(),
-                e.getUpdatedAt()
+                e.id(),
+                e.fullName(),
+                e.normalizedName(),
+                e.createdAt(),
+                e.updatedAt(),
+                e.version()
         );
     }
 }

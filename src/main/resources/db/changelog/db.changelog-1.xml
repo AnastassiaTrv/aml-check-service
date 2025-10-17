@@ -29,4 +29,12 @@
         </sql>
     </changeSet>
 
+    <changeSet id="3" author="ana.tret">
+        <comment>Add version column to prevent lost updates</comment>
+        <sql>
+            ALTER TABLE sanctioned_subject ADD COLUMN version BIGINT NOT NULL DEFAULT 0,
+            ADD CONSTRAINT sanctioned_subject_version_positive CHECK (version >= 0);
+        </sql>
+    </changeSet>
+
 </databaseChangeLog>

@@ -3,7 +3,7 @@ package ana.tret.amlcheckservice.service;
 import ana.tret.amlcheckservice.dto.sanctionedsubject.SubjectMatchDto;
 import ana.tret.amlcheckservice.dto.amlcheck.AmlCheckRequest;
 import ana.tret.amlcheckservice.dto.amlcheck.AmlCheckResponse;
-import ana.tret.amlcheckservice.repository.sanctionedsubject.SanctionedSubjectJdbcRepo;
+import ana.tret.amlcheckservice.repository.SanctionedSubjectJdbcRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
