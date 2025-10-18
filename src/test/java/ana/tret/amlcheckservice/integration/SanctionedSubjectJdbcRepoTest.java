@@ -7,12 +7,7 @@ import ana.tret.amlcheckservice.repository.SanctionedSubjectJdbcRepo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import ana.tret.amlcheckservice.TestcontainersConfiguration;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -21,33 +16,32 @@ import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@SpringBootTest
-@ActiveProfiles("test")
-@Import(TestcontainersConfiguration.class)
-public class SanctionedSubjectJdbcRepoTest {
+public class SanctionedSubjectJdbcRepoTest extends IntegrationBaseTest {
 
     @Autowired
     private SanctionedSubjectJdbcRepo repository;
 
+    private static final String FULL_NAME_NEW = "Michael Jackson";
+    private static final String NORMALIZED_NEW = "jackson michael";
+
     @Test
-    @Transactional
     void insert_shouldInsertRecordAndReturnInserted() {
         var before = OffsetDateTime.now(UTC);
-        var inserted = repository.insert("Bob Marley", "marley bob");
+        var inserted = repository.insert(FULL_NAME_NEW, NORMALIZED_NEW);
 
         assertThat(inserted).isNotNull();
+        assertThat(inserted.fullName()).isEqualTo(FULL_NAME_NEW);
+        assertThat(inserted.normalizedName()).isEqualTo(NORMALIZED_NEW);
         assertThat(inserted.createdAt()).isAfterOrEqualTo(before);
         assertThat(inserted.updatedAt()).isAfterOrEqualTo(before);
     }
 
     @Test
-    @Transactional
     void insert_shouldThrowDuplicateRecordException_ifSameNameExists() {
         assertThrows(DuplicateRecordException.class, () -> repository.insert("Osama Bin Laden", "bin laden osama"));
     }
 
     @Test
-    @Transactional
     void preselectOrderedBySimilarity_shouldReturnListOrderedBySimilarity() {
         List<SubjectMatchDto> preselected = repository.preselectOrderedBySimilarity("bin laden osama", 3);
 
@@ -58,57 +52,46 @@ public class SanctionedSubjectJdbcRepoTest {
     }
 
     @Test
-    @Transactional
-    void update_shouldUpdateRecordAndReturnUpdated() {
-        var fullName = "Michael Jackson";
-        var normalized = "jackson michael";
+    void update_shouldUpdateRecordAndIncreaseVersion() {
         var before = OffsetDateTime.now(UTC);
-        var updated = repository.update(1L, fullName, normalized, 0L);
+        var updated = repository.update(1L, FULL_NAME_NEW, NORMALIZED_NEW, 0L);
 
-        assertThat(updated.fullName()).isEqualTo(fullName);
-        assertThat(updated.normalizedName()).isEqualTo(normalized);
+        assertThat(updated.fullName()).isEqualTo(FULL_NAME_NEW);
+        assertThat(updated.normalizedName()).isEqualTo(NORMALIZED_NEW);
+        assertThat(updated.version()).isEqualTo(1L);
         assertThat(updated.updatedAt()).isAfter(before);
         assertThat(updated.createdAt()).isBefore(before);
     }
 
     @Test
-    @Transactional
     void update_shouldThrowRecordNotFoundException_ifNotExistsById() {
-        var fullName = "Michael Jackson";
-        var normalized = "jackson michael";
-        assertThrows(RecordNotFoundException.class, () -> repository.update(100L, fullName, normalized, 0L));
+        assertThrows(RecordNotFoundException.class,
+                () -> repository.update(100L, FULL_NAME_NEW, NORMALIZED_NEW, 0L));
     }
 
     @Test
-    @Transactional
     void update_shouldThrowOptimisticLockingFailureException_ifVersionIsWrong() {
-        var fullName = "Michael Jackson";
-        var normalized = "jackson michael";
-        assertThrows(OptimisticLockingFailureException.class, () -> repository.update(1L, fullName, normalized, 1L));
+        assertThrows(OptimisticLockingFailureException.class,
+                () -> repository.update(1L, FULL_NAME_NEW, NORMALIZED_NEW, 1L));
     }
 
     @Test
-    @Transactional
     void update_shouldThrowDuplicateRecordException_ifSameNameAlreadyExists() {
-        var fullName = "Anastassia Tret";
-        var normalized = "anastassia tret";
-        assertThrows(DuplicateRecordException.class, () -> repository.update(1L, fullName, normalized, 0L));
+        assertThrows(DuplicateRecordException.class,
+                () -> repository.update(1L, "Anastassia Tret", "anastassia tret", 0L));
     }
 
     @Test
-    @Transactional
     void existsById_shouldReturnTrue_ifIdExists() {
         assertThat(repository.existsById(1L)).isTrue();
     }
 
     @Test
-    @Transactional
     void existsById_shouldReturnFalse_ifIdNotExist() {
         assertThat(repository.existsById(100L)).isFalse();
     }
 
     @Test
-    @Transactional
     void deleteById_shouldDeleteExistingRecord() {
         assertThat(repository.existsById(1L)).isTrue(); // precondition
         repository.deleteById(1L);
