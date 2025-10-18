@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="
+          http://www.liquibase.org/xml/ns/dbchangelog
+          https://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.23.xsd">
+
+    <changeSet id="1" author="ana.tret">
+        <sql>
+            INSERT INTO sanctioned_subject(full_name, normalized_name, created_at, updated_at)
+            VALUES ('Osama Bin Laden', 'bin laden osama', now(), now()),
+                   ('Anastassia Tret', 'anastassia tret', now(), now()),
+                   ('Leonardo DiCaprio', 'dicaprio leonardo', now(), now()),
+                   ('Osomana Bing', 'bing osomana', now(), now()),
+                   ('Matilda De Angelis', 'angelis de matilda', now(), now()),
+                   ('Ladon Benn', 'benn ladon', now(), now());
+        </sql>
+    </changeSet>
+</databaseChangeLog>

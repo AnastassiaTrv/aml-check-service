@@ -22,14 +22,14 @@ public class SanctionedSubjectService {
     public SanctionedSubjectResponse add(SanctionedSubjectCreateRequest request) {
         var fullName = request.fullName();
         var normalizedName = toNormalized(fullName);
-        var dto = repo.insertOrSelectByNormalizedName(fullName, normalizedName);
+        var dto = repo.insert(fullName, normalizedName);
         return SanctionedSubjectResponse.fromDto(dto);
     }
 
     @Transactional
     public SanctionedSubjectResponse update(Long id, SanctionedSubjectUpdateRequest request) {
         var fullName = request.fullName();
-        var updated = repo.tryUpdate(id, fullName, toNormalized(fullName), request.version());
+        var updated = repo.update(id, fullName, toNormalized(fullName), request.version());
         return SanctionedSubjectResponse.fromDto(updated);
     }
 

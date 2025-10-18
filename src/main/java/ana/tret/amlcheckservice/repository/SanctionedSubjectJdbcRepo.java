@@ -5,7 +5,7 @@ import ana.tret.amlcheckservice.dto.sanctionedsubject.SubjectMatchDto;
 import ana.tret.amlcheckservice.exception.DuplicateRecordException;
 import ana.tret.amlcheckservice.exception.RecordNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,6 +15,8 @@ import org.springframework.stereotype.Repository;
 
 import java.time.OffsetDateTime;
 import java.util.List;
+
+import static java.lang.Boolean.TRUE;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,31 +38,25 @@ public class SanctionedSubjectJdbcRepo {
         return jdbc.query(sql, params, SUBJECT_MATCH_MAPPER);
     }
 
-    public SanctionedSubjectDto insertOrSelectByNormalizedName(String fullName, String normalized) {
+    public SanctionedSubjectDto insert(String fullName, String normalized) {
         String sql = """
-            WITH inserted AS (
                 INSERT INTO sanctioned_subject(full_name, normalized_name, created_at, updated_at)
                 VALUES (:fullName, :normalizedName, now(), now())
-                ON CONFLICT (normalized_name) DO NOTHING
                 RETURNING id, full_name, normalized_name, created_at, updated_at, version
-            )
-            SELECT inserted.*
-            FROM inserted
-            UNION ALL
-            SELECT id, full_name, normalized_name, created_at, updated_at, version
-            FROM sanctioned_subject
-            WHERE normalized_name = :normalizedName
-              AND NOT EXISTS (SELECT 1 FROM inserted)
             """;
 
         var params = new MapSqlParameterSource()
                 .addValue("fullName", fullName)
                 .addValue("normalizedName", normalized);
 
-        return jdbc.queryForObject(sql, params, SUBJECT_MAPPER);
+        try {
+            return jdbc.queryForObject(sql, params, SUBJECT_MAPPER);
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateRecordException("Duplicate normalized_name not allowed: %s".formatted(normalized), e);
+        }
     }
 
-    public SanctionedSubjectDto tryUpdate(Long id, String fullName, String normalized, Long expectedVersion) {
+    public SanctionedSubjectDto update(Long id, String fullName, String normalized, Long expectedVersion) {
         String sql = """
         UPDATE sanctioned_subject
         SET full_name       = :fullName,
@@ -81,19 +77,17 @@ public class SanctionedSubjectJdbcRepo {
             return jdbc.queryForObject(sql, params, SUBJECT_MAPPER);
         } catch (EmptyResultDataAccessException e) {
             if (!existsById(id)) {
-                throw new RecordNotFoundException("Record not found by id=%d".formatted(id));
+                throw new RecordNotFoundException("Record not found by id=%d".formatted(id), e);
             }
             throw new OptimisticLockingFailureException("Update failed for id=%d, expectedVersion=%d".formatted(id, expectedVersion), e);
-        } catch (DataIntegrityViolationException e) {
-            throw new DuplicateRecordException("Duplicate normalized_name not allowed: %s".formatted(normalized));
+        } catch (DuplicateKeyException e) {
+            throw new DuplicateRecordException("Duplicate normalized_name not allowed: %s".formatted(normalized), e);
         }
     }
 
     public boolean existsById(Long id) {
-        String sql = """
-            SELECT EXISTS(SELECT 1 from sanctioned_subject WHERE id=:id)
-            """;
-        return Boolean.TRUE.equals(jdbc.queryForObject(sql,new MapSqlParameterSource("id", id), Boolean.class));
+        String sql = "SELECT EXISTS(SELECT 1 from sanctioned_subject WHERE id=:id)";
+        return TRUE.equals(jdbc.queryForObject(sql, new MapSqlParameterSource("id", id), Boolean.class));
     }
 
     public void deleteById(Long id) {
