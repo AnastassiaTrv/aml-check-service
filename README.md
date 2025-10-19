@@ -2,7 +2,7 @@
 
 The aml-check-service project provides a lightweight screening solution for marking money transfers as potentially suspicious based on a given text input.
 
-If we consider this service to be called for every transfer in a real payment-processing system, it means it must respond as fast as possible and avoid consuming excessive memory.
+If we consider this service to be called for every transfer in a real payments processing system, it means it must respond as fast as possible and avoid consuming excessive memory.
 Since the list of terrorists or sanctioned persons is theoretically limited only by the world’s population, an ideal solution should not load all data into memory just to iterate through it and discard most of it. The response time should also remain independent of the total number of database records.
 
 To address these challenges, aml-check-service relies on PostgreSQL’s pg_trgm extension - in particular, on the GIN (Generalized Inverted Index) for trigrams.
@@ -25,8 +25,8 @@ This allows the system to quickly preselect only the most relevant records up to
 - AssertJ
 
 ## Algorithmic components
-Initial candidate scoring: PostgreSQL similarity() function from the pg_trgm extension
-Final score calculation: Java implementation of Jaro–Winkler Similarity
+- Initial candidate scoring: uses PostgreSQL pg_trgm extension and a GIN inverted index on the normalized_name column to compute trigram-based text similarity efficiently without full table scans
+- Final score calculation: uses Java implementation of the Jaro-Winkler Similarity algorithm to provide finer control over the scoring logic
 
 ## 🚀 Running locally
 The project is fully containerized - no manual setup is required.  
@@ -46,7 +46,9 @@ http://localhost:8882/swagger-ui/index.html
 <small>
 PS: Since returning only a boolean value (true / false) is not sufficient for proper validation,
 the response also includes additional fields with detailed information.
+</small>
 
+<small>
 There are several possible match levels - for example, if a name does not reach the score required to be marked as a positive match,
 but still achieves a relatively high similarity, the response will indicate this with a match type value: SUSPICIOUS.
 </small>
