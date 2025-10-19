@@ -67,7 +67,7 @@ public class JwHelperTest {
     // ------- small or zero similarity -------
 
     @Test
-    void calculateJaroWinklerScore_noOverlap_sameTokensCount_() {
+    void calculateJaroWinklerScore_smallOverlap() {
         double s = JwHelper.calculateJaroWinklerScore("oksama labam", "bin laden osama");
         assertThat(s).isEqualTo(0.69);
     }
