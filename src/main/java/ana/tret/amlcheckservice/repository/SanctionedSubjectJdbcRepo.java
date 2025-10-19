@@ -1,7 +1,7 @@
 package ana.tret.amlcheckservice.repository;
 
-import ana.tret.amlcheckservice.dto.sanctionedsubject.SanctionedSubjectDto;
-import ana.tret.amlcheckservice.dto.sanctionedsubject.SubjectMatchDto;
+import ana.tret.amlcheckservice.domain.SanctionedSubject;
+import ana.tret.amlcheckservice.domain.SubjectMatch;
 import ana.tret.amlcheckservice.exception.DuplicateRecordException;
 import ana.tret.amlcheckservice.exception.RecordNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +23,7 @@ import static java.lang.Boolean.TRUE;
 public class SanctionedSubjectJdbcRepo {
     private final NamedParameterJdbcTemplate jdbc;
 
-    public List<SubjectMatchDto> preselectOrderedBySimilarity(String normalized, int limit) {
+    public List<SubjectMatch> preselectOrderedBySimilarity(String normalized, int limit) {
         String sql = """
             SELECT id, full_name, normalized_name, similarity(normalized_name, :normalized) AS rate
             FROM sanctioned_subject
@@ -38,7 +38,7 @@ public class SanctionedSubjectJdbcRepo {
         return jdbc.query(sql, params, SUBJECT_MATCH_MAPPER);
     }
 
-    public SanctionedSubjectDto insert(String fullName, String normalized) {
+    public SanctionedSubject insert(String fullName, String normalized) {
         String sql = """
                 INSERT INTO sanctioned_subject(full_name, normalized_name, created_at, updated_at)
                 VALUES (:fullName, :normalizedName, now(), now())
@@ -56,7 +56,7 @@ public class SanctionedSubjectJdbcRepo {
         }
     }
 
-    public SanctionedSubjectDto update(Long id, String fullName, String normalized, Long expectedVersion) {
+    public SanctionedSubject update(Long id, String fullName, String normalized, Long expectedVersion) {
         String sql = """
         UPDATE sanctioned_subject
         SET full_name       = :fullName,
@@ -95,14 +95,14 @@ public class SanctionedSubjectJdbcRepo {
         jdbc.update(sql, new MapSqlParameterSource("id", id));
     }
 
-    private static final RowMapper<SubjectMatchDto> SUBJECT_MATCH_MAPPER = (rs, i) -> new SubjectMatchDto(
+    private static final RowMapper<SubjectMatch> SUBJECT_MATCH_MAPPER = (rs, i) -> new SubjectMatch(
             rs.getLong("id"),
             rs.getString("full_name"),
             rs.getString("normalized_name"),
             rs.getDouble("rate")
     );
 
-    private static final RowMapper<SanctionedSubjectDto> SUBJECT_MAPPER = (rs, i) -> new SanctionedSubjectDto(
+    private static final RowMapper<SanctionedSubject> SUBJECT_MAPPER = (rs, i) -> new SanctionedSubject(
             rs.getLong("id"),
             rs.getString("full_name"),
             rs.getString("normalized_name"),

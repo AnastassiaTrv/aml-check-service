@@ -1,5 +1,7 @@
 package ana.tret.amlcheckservice.dto.sanctionedsubject;
 
+import ana.tret.amlcheckservice.domain.SanctionedSubject;
+
 import java.time.OffsetDateTime;
 
 public record SanctionedSubjectResponse(
@@ -10,7 +12,7 @@ public record SanctionedSubjectResponse(
         OffsetDateTime updatedAt,
         Long version) {
 
-    public static SanctionedSubjectResponse fromDto(SanctionedSubjectDto e) {
+    public static SanctionedSubjectResponse fromDto(SanctionedSubject e) {
         return new SanctionedSubjectResponse(
                 e.id(),
                 e.fullName(),

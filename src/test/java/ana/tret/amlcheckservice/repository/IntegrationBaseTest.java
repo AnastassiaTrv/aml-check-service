@@ -1,4 +1,4 @@
-package ana.tret.amlcheckservice.integration;
+package ana.tret.amlcheckservice.repository;
 
 import ana.tret.amlcheckservice.TestcontainersConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;

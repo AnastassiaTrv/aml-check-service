@@ -1,14 +1,18 @@
 package ana.tret.amlcheckservice.dto.amlcheck;
 
-import ana.tret.amlcheckservice.dto.sanctionedsubject.SubjectMatchDto;
+import ana.tret.amlcheckservice.domain.SubjectMatch;
 
-public record AmlCheckResponse(String bestMatch, double score, boolean match) {
+import static ana.tret.amlcheckservice.dto.amlcheck.MatchType.ZERO;
 
-    public static AmlCheckResponse fromSubjectMatch(SubjectMatchDto dto, boolean isMatch) {
-        return new AmlCheckResponse(dto.fullName(), dto.rate(), isMatch);
+public record AmlCheckResponse(String bestMatch, MatchType type, double score, boolean match) {
+
+    public static AmlCheckResponse fromSubjectMatch(SubjectMatch dto,
+                                                    MatchType type,
+                                                    boolean isMatch) {
+        return new AmlCheckResponse(dto.fullName(), type, dto.rate(), isMatch);
     }
 
     public static AmlCheckResponse fromZeroMatch() {
-        return new AmlCheckResponse(null, 0.0, false);
+        return new AmlCheckResponse(null, ZERO, 0.0, false);
     }
 }

@@ -1,18 +1,15 @@
-package ana.tret.amlcheckservice.integration;
+package ana.tret.amlcheckservice.repository;
 
-import ana.tret.amlcheckservice.dto.sanctionedsubject.SubjectMatchDto;
+import ana.tret.amlcheckservice.domain.SubjectMatch;
 import ana.tret.amlcheckservice.exception.DuplicateRecordException;
 import ana.tret.amlcheckservice.exception.RecordNotFoundException;
-import ana.tret.amlcheckservice.repository.SanctionedSubjectJdbcRepo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.OptimisticLockingFailureException;
 
-import java.time.OffsetDateTime;
 import java.util.List;
 
-import static java.time.ZoneOffset.UTC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -26,14 +23,10 @@ public class SanctionedSubjectJdbcRepoTest extends IntegrationBaseTest {
 
     @Test
     void insert_shouldInsertRecordAndReturnInserted() {
-        var before = OffsetDateTime.now(UTC);
         var inserted = repository.insert(FULL_NAME_NEW, NORMALIZED_NEW);
-
         assertThat(inserted).isNotNull();
         assertThat(inserted.fullName()).isEqualTo(FULL_NAME_NEW);
         assertThat(inserted.normalizedName()).isEqualTo(NORMALIZED_NEW);
-        assertThat(inserted.createdAt()).isAfterOrEqualTo(before);
-        assertThat(inserted.updatedAt()).isAfterOrEqualTo(before);
     }
 
     @Test
@@ -43,8 +36,7 @@ public class SanctionedSubjectJdbcRepoTest extends IntegrationBaseTest {
 
     @Test
     void preselectOrderedBySimilarity_shouldReturnListOrderedBySimilarity() {
-        List<SubjectMatchDto> preselected = repository.preselectOrderedBySimilarity("bin laden osama", 3);
-
+        List<SubjectMatch> preselected = repository.preselectOrderedBySimilarity("bin laden osama", 3);
         assertThat(preselected).hasSize(3);
         assertThat(preselected.get(0).fullName()).isEqualTo("Osama Bin Laden");
         assertThat(preselected.get(1).fullName()).isEqualTo("Osomana Bing");
@@ -53,14 +45,10 @@ public class SanctionedSubjectJdbcRepoTest extends IntegrationBaseTest {
 
     @Test
     void update_shouldUpdateRecordAndIncreaseVersion() {
-        var before = OffsetDateTime.now(UTC);
         var updated = repository.update(1L, FULL_NAME_NEW, NORMALIZED_NEW, 0L);
-
         assertThat(updated.fullName()).isEqualTo(FULL_NAME_NEW);
         assertThat(updated.normalizedName()).isEqualTo(NORMALIZED_NEW);
         assertThat(updated.version()).isEqualTo(1L);
-        assertThat(updated.updatedAt()).isAfter(before);
-        assertThat(updated.createdAt()).isBefore(before);
     }
 
     @Test

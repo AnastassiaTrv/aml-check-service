@@ -46,8 +46,9 @@ public class JwHelper {
             }
         }
 
-        // if matches exist then calculate average score based on the longest array
-        double base = matches == 0 ? 0.0 : sum / Math.max(left.size(), right.size());
+        // if matches exist then calculate average score based on the average array size
+        double avg = ((double) left.size() + right.size()) / 2;
+        double base = matches == 0 ? 0.0 : sum / avg;
 
         // calculate the bonus if at least one strong pair exists
         double strong = 0.0;
@@ -57,8 +58,8 @@ public class JwHelper {
             }
         }
 
-        double score = base * 0.85 + strong * 0.15;
-        return Math.max(0.0, Math.min(1.0, score));
+        double score = base * 0.8 + strong * 0.2;
+        return Math.round(score * 100.0) / 100.0;
     }
 
     private static double calculateJwSimilarityScore(String left, String right) {
